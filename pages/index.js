@@ -1,65 +1,51 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import dayjs from 'dayjs';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import {useRaf} from 'react-use';
+import {useState} from 'react'
+
+dayjs.extend(LocalizedFormat)
+
+const Time = () => {
+  useRaf(1e11)
+
+  return <span>{ dayjs().format('HH:mm:ss') }</span>
+}
+
+const FullscreenBtn = () => {
+  const [isFullscreen, setIsFullscreen] = useState(() => {
+    return typeof window !== 'undefined' && window.document.fullscreenElement != null
+  })
+
+  const toggleFullscreen = async () => {
+    if (typeof window === 'undefined') return
+
+    if (isFullscreen) {
+      await window.document.exitFullscreen()
+    } else {
+      await window.document.documentElement.requestFullscreen()
+    }
+    setIsFullscreen(!isFullscreen)
+  }
+
+  return (
+    <span onClick={toggleFullscreen}>
+      {isFullscreen ? 'Exit fullscreen' : 'Fullscreen' }
+    </span>
+  )
+}
 
 export default function Home() {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+    <div className="select-none absolute inset-0 bg-black text-white flex justify-center items-center">
+      <div className="absolute left-8 top-8" style={{ fontSize: 80 }}>
+        {dayjs().format('ll ddd')}
+      </div>
+      <div className="font-mono font-bold" style={{ fontSize: 240 }}>
+        <Time />
+      </div>
+      <div className="absolute right-8 bottom-8">
+        <FullscreenBtn />
+      </div>
     </div>
   )
 }
