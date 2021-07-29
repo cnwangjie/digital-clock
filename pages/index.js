@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import {useEvent, useInterval, useMouse, useRaf, useUpdate} from 'react-use';
+import {useEvent, useInterval, useMouse, useRaf, useToggle, useUpdate} from 'react-use';
 import {useState} from 'react'
 import useSWR from 'swr';
 
@@ -71,22 +71,40 @@ const Weather = () => {
   </div>
 }
 
+const fetchBlob = url => fetch(url).then(res => res.blob())
+
 export default function Home() {
+  const { data: backgroundImage, mutate: changeBg, isValidating } = useSWR('https://picsum.photos/1080/720', fetchBlob, {
+    refreshInterval: 3600e3,
+    refreshWhenHidden: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  })
+
+  const [showBg, toggleBg] = useToggle(true)
+
   return (
-    <div className="select-none absolute inset-0 bg-black text-white flex justify-center items-center">
-      <div className="absolute left-8 top-8 right-8 flex justify-between 2xl:text-7xl xl:text-6xl md:text-5xl">
-        <Header />
-        <Weather />
-      </div>
-      <div className="font-mono font-bold" style={{ fontSize: 240 }}>
-        <div className="h-4"></div>
-        <Time />
-        <div className="break-words h-4" style={{ bottom: '25%', fontSize: 36, width: 1200 }}>
-          <YiYan />
+    <div
+      style={backgroundImage && showBg ? { backgroundImage: `url(${URL.createObjectURL(backgroundImage)})` } : undefined}
+      className="bg-cover bg-center select-none absolute inset-0 bg-black text-white"
+    >
+      <div style={{ backgroundColor: '#000a' }} className="absolute inset-0 flex justify-center items-center">
+        <div className="absolute left-8 top-8 right-8 flex justify-between 2xl:text-7xl xl:text-6xl md:text-5xl">
+          <Header />
+          <Weather />
         </div>
-      </div>
-      <div className="absolute right-8 bottom-8">
-        <FullscreenBtn />
+        <div className="font-mono font-bold" style={{ fontSize: 240 }}>
+          <div className="h-4"></div>
+          <Time />
+          <div className="break-words h-4" style={{ bottom: '25%', fontSize: 36, width: 1200 }}>
+            <YiYan />
+          </div>
+        </div>
+        <div className="absolute right-8 bottom-8">
+          <span onClick={() => isValidating || changeBg()} className="pr-8">Change background</span>
+          <span onClick={toggleBg} className="pr-8">Toggle background</span>
+          <FullscreenBtn />
+        </div>
       </div>
     </div>
   )
