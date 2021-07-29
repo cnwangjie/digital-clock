@@ -74,11 +74,12 @@ const Weather = () => {
 export default function Home() {
   return (
     <div className="select-none absolute inset-0 bg-black text-white flex justify-center items-center">
-      <div className="absolute left-8 top-8 right-8 flex justify-between" style={{ fontSize: 80 }}>
+      <div className="absolute left-8 top-8 right-8 flex justify-between 2xl:text-7xl xl:text-6xl md:text-5xl">
         <Header />
         <Weather />
       </div>
       <div className="font-mono font-bold" style={{ fontSize: 240 }}>
+        <div className="h-4"></div>
         <Time />
         <div className="break-words h-4" style={{ bottom: '25%', fontSize: 36, width: 1200 }}>
           <YiYan />
