@@ -11,7 +11,6 @@ import {
 } from 'react-use'
 import { useState, useMemo, useCallback } from 'react'
 import useSWR, { mutate } from 'swr'
-import Head from 'next/head'
 
 dayjs.extend(LocalizedFormat)
 
@@ -133,10 +132,6 @@ export default function Home() {
       }
       className="bg-cover bg-center select-none absolute inset-0 bg-black text-white"
     >
-      <Head>
-        <title>Screen Clock</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </Head>
       <div
         style={{ backgroundColor: '#000a' }}
         className="absolute inset-0 flex justify-center items-center"
