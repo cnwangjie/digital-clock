@@ -3,7 +3,6 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import {
   useEvent,
   useInterval,
-  useLocalStorage,
   useMouse,
   useRaf,
   useToggle,
@@ -84,11 +83,43 @@ const Weather = () => {
 
 const fetchBlob = url => fetch(url).then(res => res.blob())
 
+const useLocalStorage = (key, initialValue) => {
+  const [value, setValue] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const value = localStorage.getItem(key)
+      if (value) {
+        try {
+          return JSON.parse(value)
+        } catch (err) {
+          // ignore
+        }
+      }
+    }
+    return typeof initialValue === 'function' ? initialValue() : initialValue
+  })
+
+  const set = useCallback(
+    setStateAction => {
+      setValue(value => {
+        const newValue =
+          typeof setStateAction === 'function'
+            ? setStateAction(value)
+            : setStateAction
+
+        localStorage.setItem(key, newValue)
+        return newValue
+      })
+    },
+    [setValue]
+  )
+
+  return [value, set]
+}
+
 const useToggleLocalStorage = (key, initialValue) => {
   const [value, setValue] = useLocalStorage(key, initialValue)
   const toggle = useCallback(() => setValue(v => !v), [])
   return [value, toggle]
-
 }
 
 export default function Home() {
@@ -108,13 +139,7 @@ export default function Home() {
   const [showPanel, togglePanel] = useToggleLocalStorage('show-panel', true)
 
   if (typeof window !== 'undefined')
-    useEvent(
-      'click',
-      e => {
-        togglePanel()
-      },
-      window
-    )
+    useEvent('click', e => togglePanel(), window)
 
   const backgroundImage = useMemo(
     () => bg && `url(${URL.createObjectURL(bg)})`,
@@ -162,13 +187,13 @@ export default function Home() {
                 Change background
               </span>
               <span onClick={toggleBg} className="pr-8">
-                Toggle background
+                {showBg ? 'Hide' : 'Show'} background
               </span>
               <span onClick={() => mutate(YiYanURL)} className="pr-8">
                 Change YiYan
               </span>
               <span onClick={toggleYiYan} className="pr-8">
-                Toggle YiYan
+                {showYiYan ? 'Hide' : 'Show'} YiYan
               </span>
               <FullscreenBtn />
             </>
