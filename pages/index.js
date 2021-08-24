@@ -46,12 +46,20 @@ const FullscreenBtn = () => {
   )
 }
 
-const Header = () => {
+const Date = () => {
   const update = useUpdate()
+  const [show, toggle] = useToggleLocalStorage('show-date', true)
 
   useInterval(update, 1000)
 
-  return <span>{dayjs().format('ll ddd')}</span>
+  return <span
+    style={{ opacity: show ? 1 : 0 }}
+    onClick={e => {
+      e.stopPropagation()
+      e.preventDefault()
+      toggle()
+    }}
+  >{dayjs().format('ll ddd')}</span>
 }
 
 const YiYanURL = 'https://v1.hitokoto.cn/'
@@ -71,14 +79,27 @@ const YiYan = () => {
   )
 }
 
-const fetchText = url => fetch(url).then(res => res.text())
+const fetchText = url => fetch(url).then(res => {
+  if (res.status === 200) return res.text()
+
+  return 'weather service is down'
+})
 
 const Weather = () => {
   const { data, mutate } = useSWR('https://wttr.in/?format=3', fetchText, {
     refreshInterval: 3600e3,
   })
 
-  return <div>{data}</div>
+  const [show, toggle] = useToggleLocalStorage('show-weather', true)
+
+  return <div
+    style={{ opacity: show ? 1 : 0 }}
+    onClick={e => {
+      e.stopPropagation()
+      e.preventDefault()
+      toggle()
+    }}
+  >{data}</div>
 }
 
 const fetchBlob = url => fetch(url).then(res => res.blob())
@@ -162,7 +183,7 @@ export default function Home() {
         className="absolute inset-0 flex justify-center items-center"
       >
         <div className="absolute left-8 top-8 right-8 flex justify-between 2xl:text-7xl xl:text-6xl md:text-3xl sm:text-xl">
-          <Header />
+          <Date />
           <Weather />
         </div>
         <div className="flex flex-col justify-center">
