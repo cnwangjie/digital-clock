@@ -7,6 +7,7 @@ import {
   useRaf,
   useToggle,
   useUpdate,
+  useBattery,
 } from 'react-use'
 import { useState, useMemo, useCallback } from 'react'
 import useSWR, { mutate } from 'swr'
@@ -52,14 +53,18 @@ const Date = () => {
 
   useInterval(update, 1000)
 
-  return <span
-    style={{ opacity: show ? 1 : 0 }}
-    onClick={e => {
-      e.stopPropagation()
-      e.preventDefault()
-      toggle()
-    }}
-  >{dayjs().format('ll ddd')}</span>
+  return (
+    <span
+      style={{ opacity: show ? 1 : 0 }}
+      onClick={e => {
+        e.stopPropagation()
+        e.preventDefault()
+        toggle()
+      }}
+    >
+      {dayjs().format('ll ddd')}
+    </span>
+  )
 }
 
 const YiYanURL = 'https://v1.hitokoto.cn/'
@@ -79,11 +84,12 @@ const YiYan = () => {
   )
 }
 
-const fetchText = url => fetch(url).then(res => {
-  if (res.status === 200) return res.text()
+const fetchText = url =>
+  fetch(url).then(res => {
+    if (res.status === 200) return res.text()
 
-  return 'weather service is down'
-})
+    return 'weather service is down'
+  })
 
 const Weather = () => {
   const { data, mutate } = useSWR('https://wttr.in/?format=3', fetchText, {
@@ -92,14 +98,38 @@ const Weather = () => {
 
   const [show, toggle] = useToggleLocalStorage('show-weather', true)
 
-  return <div
-    style={{ opacity: show ? 1 : 0 }}
-    onClick={e => {
-      e.stopPropagation()
-      e.preventDefault()
-      toggle()
-    }}
-  >{data}</div>
+  return (
+    <div
+      style={{ opacity: show ? 1 : 0 }}
+      onClick={e => {
+        e.stopPropagation()
+        e.preventDefault()
+        toggle()
+      }}
+    >
+      {data}
+    </div>
+  )
+}
+
+const Battery = () => {
+  const { fetched, level, charging } = useBattery()
+
+  const [show, toggle] = useToggleLocalStorage('show-battery', true)
+
+  if (!fetched || charging) return null
+
+  return (
+    <div
+      className="flex justify-end"
+      style={{ opacity: show ? 1 : 0 }}
+      onClick={e => {
+        e.stopPropagation()
+        e.preventDefault()
+        toggle()
+      }}
+    >{`Battery: ${(level * 100) << 0}%`}</div>
+  )
 }
 
 const fetchBlob = url => fetch(url).then(res => res.blob())
@@ -184,7 +214,10 @@ export default function Home() {
       >
         <div className="absolute left-8 top-8 right-8 flex justify-between 2xl:text-7xl xl:text-6xl md:text-3xl sm:text-xl">
           <Date />
-          <Weather />
+          <div className="flex flex-col gap-4">
+            <Weather />
+            <Battery />
+          </div>
         </div>
         <div className="flex flex-col justify-center">
           <div className="h-4"></div>
